@@ -9,8 +9,8 @@ import androidx.room.Query
 @Dao
 interface NoteDao {
     @Insert(onConflict = REPLACE)
-    fun addNote(note: Note)
+    suspend fun addNote(note: Note)
 
-    @get:Query("SELECT * FROM notes")
-    val getAllNotes : List<Note>
+    @Query("SELECT * FROM notes")
+    suspend fun getAllNotes() : List<Note>
 }
