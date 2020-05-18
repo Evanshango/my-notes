@@ -1,9 +1,9 @@
 package com.evans.mynotes.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.Navigation
 import com.evans.mynotes.R
 import com.evans.mynotes.database.Note
@@ -19,6 +19,9 @@ class AddNoteFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        setHasOptionsMenu(true)
+
         return inflater.inflate(R.layout.fragment_add_note, container, false)
     }
 
@@ -29,6 +32,12 @@ class AddNoteFragment : BaseFragment() {
             note = AddNoteFragmentArgs.fromBundle(it).note
             noteTitle.setText(note?.title)
             noteBody.setText(note?.note)
+        }
+
+        if (note != null){
+            (activity as AppCompatActivity).supportActionBar?.title = "Edit Note"
+        } else{
+            (activity as AppCompatActivity).supportActionBar?.title = "Add Note"
         }
 
         btnDone.setOnClickListener { view ->
@@ -59,10 +68,41 @@ class AddNoteFragment : BaseFragment() {
                         NoteDatabase(it).getNoteDao().updateNote(mNote)
                         it.toast("Note Updated")
                     }
-                    val action = AddNoteFragmentDirections.actionAddNoteFragmentToHomeFragment()
-                    Navigation.findNavController(view).navigate(action)
+                    toHomeFragment(view)
                 }
             }
         }
+    }
+
+    private fun toHomeFragment(view: View) {
+        val action = AddNoteFragmentDirections.actionAddNoteFragmentToHomeFragment()
+        Navigation.findNavController(view).navigate(action)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.add_note_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.action_delete ->
+                if (note != null) deleteNote() else context?.toast("Delete operation denied")
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun deleteNote() {
+        AlertDialog.Builder(requireContext()).apply {
+            setTitle("Are you sure?")
+            setMessage("This action cannot be undone")
+            setPositiveButton("Yes"){_, _ ->
+                launch {
+                    NoteDatabase(context).getNoteDao().deleteNote(note!!)
+                    toHomeFragment(requireView())
+                }
+            }
+            setNegativeButton("Cancel"){dialog, _ -> dialog.dismiss() }
+        }.create().show()
     }
 }
