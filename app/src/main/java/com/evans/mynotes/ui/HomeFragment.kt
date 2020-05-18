@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import com.evans.mynotes.R
@@ -47,6 +48,8 @@ class HomeFragment : BaseFragment(), NoteAdapter.ItemInteraction {
     }
 
     override fun noteClicked(note: Note) {
-        requireContext().toast("clicked ${note.title}")
+//        val action = HomeFragmentDirections.actionHomeFragmentToAddNoteFragment()
+        val args = bundleOf("note" to note)
+        Navigation.findNavController(requireView()).navigate(R.id.action_homeFragment_to_addNoteFragment, args)
     }
 }
