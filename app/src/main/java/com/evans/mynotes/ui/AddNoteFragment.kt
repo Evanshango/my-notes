@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.Navigation
 import com.evans.mynotes.R
 import com.evans.mynotes.database.Note
 import com.evans.mynotes.database.NoteDatabase
@@ -22,17 +23,17 @@ class AddNoteFragment : BaseFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        btnDone.setOnClickListener {
+        btnDone.setOnClickListener { view ->
             val title = noteTitle.text.toString().trim()
             val body = noteBody.text.toString().trim()
 
-            if (title.isEmpty()){
+            if (title.isEmpty()) {
                 noteTitle.error = " Title is required"
                 noteTitle.requestFocus()
                 return@setOnClickListener
             }
 
-            if (body.isEmpty()){
+            if (body.isEmpty()) {
                 noteBody.error = " Description is required"
                 noteBody.requestFocus()
                 return@setOnClickListener
@@ -43,6 +44,9 @@ class AddNoteFragment : BaseFragment() {
                 context?.let {
                     NoteDatabase(it).getNoteDao().addNote(note)
                     it.toast("Note Saved")
+
+                    val action = AddNoteFragmentDirections.actionAddNoteFragmentToHomeFragment()
+                    Navigation.findNavController(view).navigate(action)
                 }
             }
         }
